@@ -6,8 +6,8 @@ import jakarta.validation.constraints.Size;
 
 public record LoginRequest(
         @NotBlank(message = "Email cannot be blank")
-        @Email(message = "Invalid email format")
-        String email,
+//        @Email(message = "Invalid email format")
+        String username,
 
         @Size(min = 6, max = 20, message = "Password must be between 6 and 20 characters")
         @NotBlank(message = "Password cannot be blank")

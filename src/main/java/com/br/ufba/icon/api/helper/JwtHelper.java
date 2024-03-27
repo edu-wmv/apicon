@@ -1,8 +1,6 @@
 package com.br.ufba.icon.api.helper;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,18 +13,13 @@ import java.util.Date;
 
 public class JwtHelper {
 
-    private static final Key SECRET_KEY;
+    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private static final int MINUTES = 60;
 
-    static {
-        String secretKey = "secret";
-        SECRET_KEY = Keys.hmacShaKeyFor(secretKey.getBytes());
-    }
-
-    public static String generateToken(String email) {
+    public static String generateToken(String username) {
         var now = Instant.now();
         return Jwts.builder()
-                .subject(email)
+                .subject(username)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(now.plus(MINUTES, ChronoUnit.MINUTES)))
                 .signWith(SECRET_KEY)
@@ -64,5 +57,9 @@ public class JwtHelper {
         return claims.getExpiration().before(new Date());
     }
 
+    public static String getTokenExpiration(String token) {
+        Claims claims = getBodyToken(token);
+        return claims.getExpiration().toString();
+    }
 
 }

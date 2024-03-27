@@ -5,8 +5,11 @@ import com.br.ufba.icon.api.controller.dto.LoginResponse;
 import com.br.ufba.icon.api.controller.dto.SignupRequest;
 import com.br.ufba.icon.api.helper.JwtHelper;
 import com.br.ufba.icon.api.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +28,6 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
 
-    @Bean
-    public AuthenticationManager authenticationManagerBean() {
-        return authenticationManager;
-    }
-
     public AuthController(UserService userService, AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
@@ -41,10 +39,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "Authenticate user and retrieve JWT")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = LoginResponse.class)))
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
-        String token = JwtHelper.generateToken(request.email());
-        return ResponseEntity.ok(new LoginResponse(request.email(), token));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+        String token = JwtHelper.generateToken(request.username());
+        String expiration = JwtHelper.getTokenExpiration(token);
+        return ResponseEntity.ok(new LoginResponse(request.username(), token, expiration));
     }
 }
