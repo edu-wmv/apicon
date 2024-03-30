@@ -1,6 +1,7 @@
 package com.br.ufba.icon.api.service;
 
 import com.br.ufba.icon.api.controller.dto.AddIconicoRequest;
+import com.br.ufba.icon.api.controller.dto.TimeAddResponse;
 import com.br.ufba.icon.api.domain.IconicoEntity;
 import com.br.ufba.icon.api.exceptions.NotFoundException;
 import com.br.ufba.icon.api.repository.IconicoRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,7 +25,7 @@ public class IconicoService {
     }
 
     @Transactional
-    public void addIconico(@NonNull AddIconicoRequest request) {
+    public IconicoEntity addIconico(@NonNull AddIconicoRequest request) {
         String uid = request.uid();
         boolean existingIconico = repository.existsByUid(uid);
 
@@ -35,11 +37,11 @@ public class IconicoService {
         iconico.setName(request.name());
         iconico.setUsername(request.username());
         iconico.setUid(request.uid());
-        repository.save(iconico);
+        return repository.save(iconico);
     }
 
     @Transactional
-    public void addHoursToId(@NonNull Long id, String time) {
+    public TimeAddResponse addHoursToId(@NonNull Long id, String time) {
         boolean iconicoExists = repository.existsById(id);
 
         if (!iconicoExists) {
@@ -51,8 +53,19 @@ public class IconicoService {
         );
 
         existingIconico.setHours(new Timestamp(existingIconico.getHours().getTime() + convertTimeToMilli(time)));
-        System.out.println(existingIconico.getHours());
-        repository.save(existingIconico);
+        IconicoEntity result = repository.save(existingIconico);
+        return new TimeAddResponse(result.getId(), result.getUsername(), result.getHours());
+    }
+
+    @Transactional
+    public Optional<IconicoEntity> getUserById(@NonNull Long id) {
+        Optional<IconicoEntity> iconicoExists = repository.findById(id);
+
+        if (iconicoExists.isEmpty()) {
+            throw new NotFoundException("Iconico não encontrado por ID");
+        }
+
+        return iconicoExists;
     }
 
     private Long convertTimeToMilli(String time) {

@@ -1,11 +1,11 @@
 package com.br.ufba.icon.api.helper;
 
+import com.br.ufba.icon.api.exceptions.AccessDeniedException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.nio.file.AccessDeniedException;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

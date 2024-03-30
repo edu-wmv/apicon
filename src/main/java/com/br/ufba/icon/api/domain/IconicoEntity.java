@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -31,4 +32,12 @@ public class IconicoEntity {
     private Boolean status = false;
 
     private String points_ids;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "points",
+            joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id")
+    )
+
+    private Set<PointEntity> points;
 }
