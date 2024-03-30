@@ -1,10 +1,9 @@
 package com.br.ufba.icon.api.controller;
 
-import com.br.ufba.icon.api.controller.dto.AddIconicoRequest;
-import com.br.ufba.icon.api.controller.dto.TimeAddRequest;
-import com.br.ufba.icon.api.controller.dto.TimeAddResponse;
+import com.br.ufba.icon.api.controller.dto.*;
 import com.br.ufba.icon.api.domain.IconicoEntity;
 import com.br.ufba.icon.api.service.IconicoService;
+import com.br.ufba.icon.api.service.PointService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,9 +22,11 @@ import java.util.Optional;
 public class DataController {
 
     private final IconicoService iconicoService;
+    private final PointService pointService;
 
-    public DataController(IconicoService iconicoService) {
+    public DataController(IconicoService iconicoService, PointService pointService) {
         this.iconicoService = iconicoService;
+        this.pointService = pointService;
     }
 
     @Operation(summary = "Adiciona usuário")
@@ -61,11 +62,23 @@ public class DataController {
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @GetMapping(value = "/get_iconico")
     public ResponseEntity<Optional<IconicoEntity>> getUser(@Valid @RequestBody int userId) {
-        return ResponseEntity.
-                status(HttpStatus.OK)
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(iconicoService.getUserById((long) userId));
     }
 
+    @Operation(summary = "Adiciona ponto ao usuário via UID")
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ResponseEntity.class)))
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    @PostMapping(value = "/add_point")
+    public ResponseEntity<AddPointResponse> addPoint(@Valid @RequestBody AddPointRequest request) {
+        AddPointResponse response = pointService.addPoint(request);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
+    }
 
 
 }
