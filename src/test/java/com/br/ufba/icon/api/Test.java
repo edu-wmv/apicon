@@ -1,5 +1,4 @@
 package com.br.ufba.icon.api;
-
 import java.sql.Timestamp;
 
 public class Test {
