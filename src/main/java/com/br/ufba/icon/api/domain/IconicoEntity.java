@@ -33,11 +33,11 @@ public class IconicoEntity {
 
     private String points_ids;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "points",
-            joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id")
-    )
-
-    private Set<PointEntity> points;
+//    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name = "points",
+//            joinColumns = @JoinColumn(name = "userId", referencedColumnName = "id")
+//    )
+//
+//    private Set<PointEntity> points;
 }

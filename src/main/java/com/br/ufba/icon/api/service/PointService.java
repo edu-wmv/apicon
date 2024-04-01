@@ -34,6 +34,7 @@ public class PointService {
             throw new NotFoundException("Tag não encontrada em Iconico cadastrado");
         }
 
+        System.out.println("found");
         Optional<PointEntity> lastPoint = repository.findFirstByUserIdOrderByDateDesc(iconico.get().getId());
         boolean lastStatus;
         if (lastPoint.isEmpty()) {
@@ -41,6 +42,7 @@ public class PointService {
         } else {
             lastStatus = lastPoint.get().getStatus();
         }
+        System.out.println("lastStatus: " + lastStatus);
 
         // create and send a new point to repository
         PointEntity newPoint = new PointEntity();
@@ -49,17 +51,21 @@ public class PointService {
         newPoint.setUsername(iconico.get().getUsername());
         newPoint.setDate(Timestamp.valueOf(request.time()));
         newPoint.setStatus(!lastStatus);
+        System.out.println("Point created");
 
         PointEntity pointSend = repository.save(newPoint);
+        System.out.println("point saved");
 
         // update user points
-        String _points_ids = "";
+        String _points_ids = String.valueOf(iconico.get().getPoints_ids());
         String points_ids;
-        if (iconico.get().getPoints_ids().isEmpty()) {
+        if (_points_ids.isEmpty()) {
             points_ids = _points_ids.concat(pointSend.getId());
         } else {
            points_ids = _points_ids.concat(",").concat(pointSend.getId());
         }
+        System.out.println(points_ids);
+        System.out.println("updated");
 
         // check for user hours
         Timestamp _final;
@@ -80,13 +86,15 @@ public class PointService {
             message = String.format("Olá %s", iconico.get().getUsername());
             code = "welcome";
         }
+        System.out.println("hours checked");
 
         // update user status
-        IconicoEntity updateIconico = new IconicoEntity();
+        IconicoEntity updateIconico = iconico.get();
         updateIconico.setStatus(!lastStatus);
         updateIconico.setPoints_ids(points_ids);
         updateIconico.setHours(_final);
         iconicoRepository.save(updateIconico);
+        System.out.println("Send!");
 
         return new AddPointResponse(message, code, iconico.get().getUsername());
     }
