@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +39,11 @@ public class AuthController {
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @PostMapping(value = "/signup")
-    public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest requestDto) {
+    public ResponseEntity<String> signup(@Valid @RequestBody SignupRequest requestDto) {
         userService.signup(requestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("User created!");
     }
 
     @Operation(summary = "Autentica usuário e retorna chave JWT")
@@ -49,10 +52,13 @@ public class AuthController {
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @PostMapping(value = "/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+    // error trigger due '@RequestBody' (check later) [????]
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody @NotNull LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         String token = JwtHelper.generateToken(request.username());
         String expiration = JwtHelper.getTokenExpiration(token);
-        return ResponseEntity.ok(new LoginResponse(request.username(), token, expiration));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new LoginResponse(request.username(), token, expiration));
     }
 }
