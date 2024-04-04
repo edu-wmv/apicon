@@ -30,6 +30,7 @@ public class IconicoEntity {
 
     private Boolean status = false;
 
+    @Column(columnDefinition = "LONGTEXT")
     private String points_ids;
 
 //    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

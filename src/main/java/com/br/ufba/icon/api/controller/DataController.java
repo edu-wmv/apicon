@@ -43,7 +43,7 @@ public class DataController {
     }
 
     @Operation(summary = "Adiciona horas ao usuário pelo ID")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponseEntity.class)))
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TimeAddResponse.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
@@ -56,7 +56,7 @@ public class DataController {
     }
 
     @Operation(summary = "Encontra usuário via ID")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ResponseEntity.class)))
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IconicoEntity.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
@@ -68,7 +68,7 @@ public class DataController {
     }
 
     @Operation(summary = "Adiciona ponto ao usuário via UID")
-    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = ResponseEntity.class)))
+    @ApiResponse(responseCode = "201", content = @Content(schema = @Schema(implementation = AddPointResponse.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))

@@ -79,11 +79,11 @@ public class PointService {
 
             _final = new Timestamp((iconico.get().getHours().getTime() + diff.getTime()));
 
-            message = String.format("Até mais %s", iconico.get().getUsername());
+            message = String.format("Ate mais %s", iconico.get().getUsername());
             code = "bye";
         } else {
             _final = iconico.get().getHours();
-            message = String.format("Olá %s", iconico.get().getUsername());
+            message = String.format("Ola %s", iconico.get().getUsername());
             code = "welcome";
         }
         System.out.println("hours checked");
