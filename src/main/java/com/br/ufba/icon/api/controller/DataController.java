@@ -42,19 +42,6 @@ public class DataController {
                 .body(addedIconico);
     }
 
-    @Operation(summary = "Adiciona horas ao usuário pelo ID")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = TimeAddResponse.class)))
-    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
-    @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
-    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
-    @PostMapping(value = "/add_hours")
-    public ResponseEntity<TimeAddResponse> addHours(@Valid @RequestBody TimeAddRequest request) {
-        TimeAddResponse addHours = iconicoService.addHoursToId((long) request.userId(), request.time());
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(addHours);
-    }
-
     @Operation(summary = "Encontra usuário via ID")
     @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IconicoEntity.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
@@ -77,6 +64,19 @@ public class DataController {
         AddPointResponse response = pointService.addPoint(request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
+                .body(response);
+    }
+
+    @Operation(summary = "Recalcula horas do usuário via ID")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecalculateHoursResponse.class)))
+    @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
+    @PostMapping(value = "/recalculate_hours")
+    public ResponseEntity<RecalculateHoursResponse> recalculateHours(@Valid @RequestBody RecalculateHoursRequest request) {
+        RecalculateHoursResponse response = iconicoService.recalculateHours(request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
                 .body(response);
     }
 
