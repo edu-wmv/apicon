@@ -1,6 +1,6 @@
 package com.br.ufba.icon.api.controller.dto;
 
 public record RecalculateHoursRequest(
-        int userId
+        Long userId
 ) {
 }

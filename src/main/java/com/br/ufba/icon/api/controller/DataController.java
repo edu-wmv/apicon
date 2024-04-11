@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @RestController
-@Tag(name = "Controle de dados")
+@Tag(name = "DataController")
 @RequestMapping(value = "/api/v2/icontag")
 public class DataController {
 
@@ -74,11 +74,15 @@ public class DataController {
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @PostMapping(value = "/recalculate_hours")
     public ResponseEntity<RecalculateHoursResponse> recalculateHours(@Valid @RequestBody RecalculateHoursRequest request) {
-        RecalculateHoursResponse response = iconicoService.recalculateHours(request);
+        RecalculateHoursResponse response = iconicoService.recalculateHours(request.userId());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+
+
+
 
 
 }
