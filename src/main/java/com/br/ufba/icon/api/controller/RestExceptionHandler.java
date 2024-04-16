@@ -5,7 +5,6 @@ import com.br.ufba.icon.api.exceptions.AccessDeniedException;
 import com.br.ufba.icon.api.exceptions.DuplicateException;
 import com.br.ufba.icon.api.exceptions.NotFoundException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;

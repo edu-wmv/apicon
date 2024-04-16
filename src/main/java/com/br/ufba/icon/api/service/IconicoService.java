@@ -5,7 +5,6 @@ import com.br.ufba.icon.api.domain.IconicoEntity;
 import com.br.ufba.icon.api.domain.PointEntity;
 import com.br.ufba.icon.api.exceptions.NotFoundException;
 import com.br.ufba.icon.api.repository.IconicoRepository;
-import com.br.ufba.icon.api.repository.PointRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.lang.NonNull;

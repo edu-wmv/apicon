@@ -13,7 +13,7 @@ import java.util.Date;
 public class CloseAllPoints {
 
     private final PointService pointService;
-    IconicoService iconicoService;
+    final IconicoService iconicoService;
 
     public CloseAllPoints(IconicoService iconicoService, PointService pointService) {
         this.iconicoService = iconicoService;

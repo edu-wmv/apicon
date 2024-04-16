@@ -2,6 +2,7 @@ package com.br.ufba.icon.api.service;
 
 import com.br.ufba.icon.api.controller.dto.AddPointRequest;
 import com.br.ufba.icon.api.controller.dto.AddPointResponse;
+import com.br.ufba.icon.api.domain.DeletedPointsEntity;
 import com.br.ufba.icon.api.domain.IconicoEntity;
 import com.br.ufba.icon.api.domain.PointEntity;
 import com.br.ufba.icon.api.exceptions.NotFoundException;
