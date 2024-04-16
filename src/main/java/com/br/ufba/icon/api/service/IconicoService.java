@@ -1,7 +1,6 @@
 package com.br.ufba.icon.api.service;
 
 import com.br.ufba.icon.api.controller.dto.AddIconicoRequest;
-import com.br.ufba.icon.api.controller.dto.RecalculateHoursResponse;
 import com.br.ufba.icon.api.domain.IconicoEntity;
 import com.br.ufba.icon.api.domain.PointEntity;
 import com.br.ufba.icon.api.exceptions.NotFoundException;
@@ -26,7 +25,7 @@ public class IconicoService {
     private final IconicoRepository repository;
     private final PointService pointService;
 
-    public IconicoService(IconicoRepository repository, PointRepository pointRepository, DeletedPointsService deletedPointsService, PointService pointService) {
+    public IconicoService(IconicoRepository repository, PointService pointService) {
         this.repository = repository;
         this.pointService = pointService;
     }

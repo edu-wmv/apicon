@@ -1,6 +1,5 @@
 package com.br.ufba.icon.api.service;
 
-import com.br.ufba.icon.api.domain.DeletedPointsEntity;
 import com.br.ufba.icon.api.repository.DeletedPointsRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
