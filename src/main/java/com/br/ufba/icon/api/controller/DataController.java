@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.NotActiveException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -67,17 +69,16 @@ public class DataController {
                 .body(response);
     }
 
-    @Operation(summary = "Recalcula horas do usuário via ID")
-    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = RecalculateHoursResponse.class)))
+    @Operation(summary = "Retorna principais dados do usuário")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = IconicoEntity.class)))
     @ApiResponse(responseCode = "401", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "403", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
     @ApiResponse(responseCode = "500", content = @Content(schema = @Schema(implementation = ApiResponse.class)))
-    @PostMapping(value = "/recalculate_hours")
-    public ResponseEntity<RecalculateHoursResponse> recalculateHours(@Valid @RequestBody RecalculateHoursRequest request) {
-        RecalculateHoursResponse response = iconicoService.recalculateHours(request.userId());
+    @GetMapping(value = "/get_data")
+    public ResponseEntity<List<IconicoEntity>> getData() {
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .body(response);
+                .body(iconicoService.returnMainData());
     }
 
 

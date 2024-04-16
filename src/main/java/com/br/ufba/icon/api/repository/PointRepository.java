@@ -11,4 +11,5 @@ public interface PointRepository extends JpaRepository<PointEntity, Long> {
     Optional<PointEntity> findFirstByUserIdOrderByDateDesc(Long userId);
 
     List<PointEntity> findAllByUserIdOrderByDate(Long userId);
+
 }

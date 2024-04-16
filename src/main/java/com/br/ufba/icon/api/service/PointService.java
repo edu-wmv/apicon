@@ -2,16 +2,20 @@ package com.br.ufba.icon.api.service;
 
 import com.br.ufba.icon.api.controller.dto.AddPointRequest;
 import com.br.ufba.icon.api.controller.dto.AddPointResponse;
+import com.br.ufba.icon.api.domain.DeletedPointsEntity;
 import com.br.ufba.icon.api.domain.IconicoEntity;
 import com.br.ufba.icon.api.domain.PointEntity;
 import com.br.ufba.icon.api.exceptions.NotFoundException;
 import com.br.ufba.icon.api.repository.IconicoRepository;
 import com.br.ufba.icon.api.repository.PointRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -20,10 +24,12 @@ public class PointService {
 
     private final PointRepository repository;
     private final IconicoRepository iconicoRepository;
+    private final DeletedPointsService deletedPointsService;
 
-    public PointService(PointRepository repository, IconicoRepository iconicoRepository) {
+    public PointService(PointRepository repository, IconicoRepository iconicoRepository, DeletedPointsService deletedPointsService) {
         this.repository = repository;
         this.iconicoRepository = iconicoRepository;
+        this.deletedPointsService = deletedPointsService;
     }
 
     @Transactional
@@ -97,5 +103,66 @@ public class PointService {
         System.out.println("Send!");
 
         return new AddPointResponse(message, code, iconico.get().getUsername());
+    }
+
+    @Transactional
+    public void deleteUserLastPoint(@NonNull IconicoEntity entity) {
+        List<PointEntity> points = repository.findAllByUserIdOrderByDate(entity.getId());
+        if (!points.isEmpty()) {
+            repository.delete(points.getLast());
+        }
+
+        entity.setPoints_ids(entity.getPoints_ids().substring(0, entity.getPoints_ids().lastIndexOf(",")));
+        System.out.println(entity.getName() + " last point deleted");
+
+        DeletedPointsEntity deletedPoint = getDeletedPointsEntity(points);
+        deletedPointsService.addDeletedPoint(deletedPoint);
+
+    }
+
+    private static @NotNull DeletedPointsEntity getDeletedPointsEntity(@NotNull List<PointEntity> points) {
+        DeletedPointsEntity deletedPoint = new DeletedPointsEntity();
+        deletedPoint.setId(points.getLast().getId());
+        deletedPoint.setDate(points.getLast().getDate());
+        deletedPoint.setStatus(points.getLast().getStatus());
+        deletedPoint.setUsername(points.getLast().getUsername());
+        deletedPoint.setUid(points.getLast().getUid());
+        deletedPoint.setUser_id(points.getLast().getUserId());
+        deletedPoint.setReason("User logged out after 22:00");
+        return deletedPoint;
+    }
+
+    @Transactional
+    public List<PointEntity> checkUserPoints(Long userId) {
+        List<PointEntity> points = repository.findAllByUserIdOrderByDate(userId);
+        System.out.println("points: " + points);
+
+        if (points.isEmpty()) {
+            throw new NotFoundException("Nenhum ponto encontrado para o usuário");
+        }
+
+        return points;
+    }
+
+    @Transactional
+    public void updateUserIdOnPoints() {
+        List<PointEntity> points = repository.findAll();
+
+        for (PointEntity point : points) {
+            Optional<IconicoEntity> iconico = iconicoRepository.findByUid(point.getUid());
+            if (iconico.isEmpty()) {
+                throw new NotFoundException("Tag não encontrada em Iconico cadastrado");
+            }
+
+            if (Objects.equals(point.getUserId(), iconico.get().getId())) {
+                continue;
+            }
+
+            point.setUserId(iconico.get().getId());
+            repository.save(point);
+
+            System.out.println("Point updated: " + point.getUserId() + " - " + point.getUsername());
+        }
+
     }
 }

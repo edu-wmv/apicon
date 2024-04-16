@@ -7,11 +7,13 @@ import com.br.ufba.icon.api.domain.PointEntity;
 import com.br.ufba.icon.api.exceptions.NotFoundException;
 import com.br.ufba.icon.api.repository.IconicoRepository;
 import com.br.ufba.icon.api.repository.PointRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.NotActiveException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +24,11 @@ import java.util.Optional;
 public class IconicoService {
 
     private final IconicoRepository repository;
-    private final PointRepository pointRepository;
+    private final PointService pointService;
 
-    public IconicoService(IconicoRepository repository, PointRepository pointRepository) {
+    public IconicoService(IconicoRepository repository, PointRepository pointRepository, DeletedPointsService deletedPointsService, PointService pointService) {
         this.repository = repository;
-        this.pointRepository = pointRepository;
+        this.pointService = pointService;
     }
 
     @Transactional
@@ -56,39 +58,29 @@ public class IconicoService {
         return iconicoExists;
     }
 
-    private Long convertTimeToMilli(String time) {
-        System.out.println(time);
-        int hour = Integer.parseInt(time.substring(0, 2));
-        int minutes = Integer.parseInt(time.substring(3,5));
-        int seconds = Integer.parseInt(time.substring(6,8));
-
-        long total = ((long) hour * 60 * 60 * 1000) + ((long) minutes * 60 * 1000) + (seconds * 1000L);
-        System.out.println(total);
-        return total;
+    @Transactional
+    public void recalculateAllHours() throws NotActiveException {
+        List<IconicoEntity> iconicos = repository.findAll();
+        for (IconicoEntity iconico : iconicos) {
+            recalculateHours(iconico);
+            System.out.println("Recalculating hours for: " + iconico.getName());
+        }
     }
 
-    @Transactional
-    public RecalculateHoursResponse recalculateHours(@NonNull Long userId) {
-        Optional<IconicoEntity> iconicoExists = repository.findById(userId);
+    private void recalculateHours(@NotNull IconicoEntity iconico) throws NotActiveException {
 
-        if (iconicoExists.isEmpty()) {
-            throw new NotFoundException("Iconico não encontrado por ID");
+        List<PointEntity> points = pointService.checkUserPoints(iconico.getId());
+
+        if (points.size() != iconico.getPoints_ids().split(",").length) {
+            System.out.println("Points diff");
         }
 
-        IconicoEntity iconico = iconicoExists.get();
-
-        if (iconico.getPoints_ids() == null) {
-            iconico.setHours(new Timestamp(10800000));
-            repository.save(iconico);
-            return new RecalculateHoursResponse(200, "User has no points", "no data");
+        if (points.size() % 2 == 1) {
+            throw new NotActiveException("Ponto de entrada sem saída");
         }
 
-        if ((iconico.getPoints_ids().split(",").length) % 2 == 1) {
-            return new RecalculateHoursResponse(428, "Usuario ainda logado", "no data");
-        }
-
-        List<PointEntity> points = pointRepository.findAllByUserIdOrderByDate(userId);
         List<PointEntity[]> pairs = new ArrayList<>();
+        StringBuilder points_ids = new StringBuilder(36*points.size());
 
         for (int i = 0; i < points.size() - 1; i += 2) {
             pairs.add(new PointEntity[]{points.get(i), points.get(i+1)});
@@ -99,16 +91,53 @@ public class IconicoService {
             Timestamp _in = pair[0].getDate();
             Timestamp _out = pair[1].getDate();
 
+            System.out.println("in: " + _in);
+            System.out.println("out: " + _out);
+
             long diff = _out.getTime() - _in.getTime();
 
             System.out.println("diff: " + diff);
             milliseconds += diff;
         }
 
-        System.out.println(new Timestamp(milliseconds));
+        for (PointEntity[] pair: pairs) {
+            String _in = pair[0].getId();
+            String _out = pair[1].getId();
 
+            points_ids.append(_in).append(",").append(_out).append(",");
+        }
 
-//        return new RecalculateHoursResponse(code, message, data);
-        return null;
+        iconico.setHours(new Timestamp(milliseconds));
+        iconico.setPoints_ids(points_ids.toString());
+        repository.save(iconico);
     }
+
+    @Transactional
+    public List<IconicoEntity> returnMainData() {
+        List<IconicoEntity> iconicos = repository.findAll();
+        for (IconicoEntity iconico : iconicos) {
+            System.out.println(iconico.getName());
+            System.out.println(iconico.getUsername());
+            System.out.println(iconico.getUid());
+            System.out.println(iconico.getHours());
+            System.out.println(iconico.getStatus());
+            System.out.println(iconico.getPoints_ids());
+        }
+
+        return iconicos;
+    }
+
+    @Transactional
+    public void closeAllIconicos() {
+        List<IconicoEntity> iconicos = repository.findAll();
+        for (IconicoEntity iconico : iconicos) {
+            if (iconico.getStatus()) {
+                pointService.deleteUserLastPoint(iconico);
+            }
+
+            iconico.setStatus(false);
+            repository.save(iconico);
+        }
+    }
+
 }
