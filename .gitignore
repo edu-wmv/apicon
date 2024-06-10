@@ -32,9 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 
+### SYSTEM ###
+.DS_Store
+
 ### APPLICATION ###
+application.properties
 application-dev.properties
 application-prod.properties
 application-stag.properties
-
-
