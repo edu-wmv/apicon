@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/v2/auth/login/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v2/admin/**").authenticated()
                         .requestMatchers(HttpMethod.GET, SWAGGER_WHITELIST).permitAll()
                         .anyRequest().authenticated())
                 .authenticationManager(authenticationManager)

@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### APPLICATION ###
+application-dev.properties
+application-prod.properties
+application-stag.properties
+
+

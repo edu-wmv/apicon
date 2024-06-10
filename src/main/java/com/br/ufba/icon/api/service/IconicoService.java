@@ -69,45 +69,53 @@ public class IconicoService {
 
         List<PointEntity> points = pointService.checkUserPoints(iconico.getId());
 
-        if (points.size() != iconico.getPoints_ids().split(",").length) {
-            System.out.println("Points diff");
+        try {
+            if (points.isEmpty()) {
+                throw new NotActiveException("Usuário sem pontos");
+            }
+
+            if (points.size() != iconico.getPoints_ids().split(",").length) {
+                System.out.println("Points diff");
+            }
+
+            if (points.size() % 2 == 1) {
+                throw new NotActiveException("Ponto de entrada sem saída");
+            }
+
+            List<PointEntity[]> pairs = new ArrayList<>();
+            StringBuilder points_ids = new StringBuilder(36*points.size());
+
+            for (int i = 0; i < points.size() - 1; i += 2) {
+                pairs.add(new PointEntity[]{points.get(i), points.get(i+1)});
+            }
+
+            long milliseconds = 10800000;
+            for (PointEntity[] pair : pairs) {
+                Timestamp _in = pair[0].getDate();
+                Timestamp _out = pair[1].getDate();
+
+                System.out.println("in: " + _in);
+                System.out.println("out: " + _out);
+
+                long diff = _out.getTime() - _in.getTime();
+
+                System.out.println("diff: " + diff);
+                milliseconds += diff;
+            }
+
+            for (PointEntity[] pair: pairs) {
+                String _in = pair[0].getId();
+                String _out = pair[1].getId();
+
+                points_ids.append(_in).append(",").append(_out).append(",");
+            }
+
+            iconico.setHours(new Timestamp(milliseconds));
+            iconico.setPoints_ids(points_ids.toString());
+            repository.save(iconico);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-
-        if (points.size() % 2 == 1) {
-            throw new NotActiveException("Ponto de entrada sem saída");
-        }
-
-        List<PointEntity[]> pairs = new ArrayList<>();
-        StringBuilder points_ids = new StringBuilder(36*points.size());
-
-        for (int i = 0; i < points.size() - 1; i += 2) {
-            pairs.add(new PointEntity[]{points.get(i), points.get(i+1)});
-        }
-
-        long milliseconds = 10800000;
-        for (PointEntity[] pair : pairs) {
-            Timestamp _in = pair[0].getDate();
-            Timestamp _out = pair[1].getDate();
-
-            System.out.println("in: " + _in);
-            System.out.println("out: " + _out);
-
-            long diff = _out.getTime() - _in.getTime();
-
-            System.out.println("diff: " + diff);
-            milliseconds += diff;
-        }
-
-        for (PointEntity[] pair: pairs) {
-            String _in = pair[0].getId();
-            String _out = pair[1].getId();
-
-            points_ids.append(_in).append(",").append(_out).append(",");
-        }
-
-        iconico.setHours(new Timestamp(milliseconds));
-        iconico.setPoints_ids(points_ids.toString());
-        repository.save(iconico);
     }
 
     @Transactional

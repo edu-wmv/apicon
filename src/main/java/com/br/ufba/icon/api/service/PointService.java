@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -137,11 +138,15 @@ public class PointService {
         List<PointEntity> points = repository.findAllByUserIdOrderByDate(userId);
         System.out.println("points: " + points);
 
-        if (points.isEmpty()) {
-            throw new NotFoundException("Nenhum ponto encontrado para o usuário");
+        try {
+            if (points.isEmpty()) {
+                throw new NotFoundException("Nenhum ponto encontrado para o usuário");
+            }
+            return points;
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
+            return new ArrayList<>();
         }
-
-        return points;
     }
 
     @Transactional
